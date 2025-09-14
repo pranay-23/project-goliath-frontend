@@ -6,6 +6,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { authInterceptor } from './core/interceptor/token.interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,8 +17,16 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(), 
     providePrimeNG({
       theme: {
-        preset: Aura, options: { darkModeSelector:'.p-dark' }
+        preset: Aura, 
+        options: { 
+          darkModeSelector: '.dark',
+          cssLayer: {
+            name: 'primeng',
+            order: 'tailwind-base, primeng, tailwind-utilities'
+          }
+        }
       }
-    })
+    }),
+    MessageService
   ]
 };

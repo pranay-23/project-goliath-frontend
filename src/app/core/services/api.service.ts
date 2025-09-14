@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse, HttpContext, HttpResponse } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 /**
  * Defines the structure for HTTP options that can be passed to API requests.
@@ -41,6 +43,7 @@ export interface ApiServiceResponse<T> {
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   /**
    * Generates a standardized ApiServiceResponse object from an HTTP response or error.
@@ -272,8 +275,7 @@ export class ApiService {
    * @returns The complete URL string.
    */
   getFullUrl(suffix, endpoint){
-    // return `${environment.apiUrl}${suffix ? environment.suffix: ''}${endpoint}`;
-    return endpoint;
+    return `${environment.apiUrl}${suffix ? environment.suffix: ''}${endpoint}`;
   }
 
   /**
@@ -335,14 +337,12 @@ export class ApiService {
     // NOTE: In a real application, using a non-blocking toast/modal is better than alert().
     alert('Your session has expired or is invalid. Please log in again.');
 
-    localStorage.removeItem('ACCESS_TOKEN');
-    localStorage.removeItem('REFRESH_TOKEN');
-
     // if (environment.name !== 'local') {
     //   window.location.href = environment.webUrl;
     // } else {
     // }
-    this.router.navigate(['/login']);
+    this.authService.logout();
+    // this.router.navigate(['/home']);
   }
 
 }

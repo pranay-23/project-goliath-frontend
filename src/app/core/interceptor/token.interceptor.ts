@@ -3,6 +3,7 @@ import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse, HttpE
 import { catchError, finalize, Observable, throwError } from 'rxjs';
 import { FormSanitizationService } from '../services/form-sanitization.service';
 import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 
 /**
  * Checks if the request body needs sanitization and recursively sanitizes it.
@@ -114,7 +115,7 @@ function handleObject(data: object, sanitizer: FormSanitizationService): { sanit
  * @param token The user's access token, or null if not logged in.
  * @returns The cloned HttpRequest with added headers.
  */
-function addAuthHeaders(req: HttpRequest<any>, token?: string | null): HttpRequest<any> {
+function interceptorFn(req: HttpRequest<any>, token?: string | null): HttpRequest<any> {
 //   if (!token) {
 //     // Handles requests for non-authenticated users (e.g., login).
 //     return req.clone({
@@ -130,17 +131,19 @@ function addAuthHeaders(req: HttpRequest<any>, token?: string | null): HttpReque
 //       headers: req.headers.set('Authorization', Bearer ${token})
 //     });
 //   }
-
-  if (!req.url.includes('/refresh')) {
-    // Handles standard JSON requests for an authenticated user.
-    return req.clone({
-      headers: req.headers
-        .set('Content-Type', 'application/json')
-    });
-  }
+  // if (!req.url.includes('/refresh')) {
+  //   // Handles standard JSON requests for an authenticated user.
+  //   return req.clone({
+  //     headers: req.headers
+  //       .set('Content-Type', 'application/json')
+  //   });
+  // }
+  const reqWithCreds = req.clone({
+    withCredentials: true
+  });
 
   // Returns the original request for all other cases (e.g., refresh token requests).
-  return req;
+  return reqWithCreds;
 }
 
 /**
@@ -175,7 +178,7 @@ function handleBlobError(err: HttpErrorResponse, toastService: ToastService): Ob
  * @param toastService Service to display error messages.
  * @returns An Observable that throws the processed error.
  */
-function handleHttpErrors(err: HttpErrorResponse, toastService: ToastService): Observable<HttpEvent<any>> {
+function handleHttpErrors(err: HttpErrorResponse,authService:AuthService, toastService: ToastService): Observable<HttpEvent<any>> {
   if (err.error instanceof Blob) {
     return handleBlobError(err, toastService);
   }
@@ -190,7 +193,7 @@ function handleHttpErrors(err: HttpErrorResponse, toastService: ToastService): O
   if (err.status === 401) {
     const message = err.error?.message ?? 'Unauthorized Access. Please log in again.';
     toastService.showToast('error', 'Error', message, 'bottom-center');
-    // authService.logout(); //logout login here
+    authService.logout();
     return throwError(() => err);
   }
 
@@ -222,6 +225,7 @@ function handleHttpErrors(err: HttpErrorResponse, toastService: ToastService): O
  */
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
   // --- Service Injection ---
+  const authService = inject(AuthService);
   const toastService = inject(ToastService);
   const formSanitizationService = inject(FormSanitizationService);
 
@@ -241,7 +245,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
 
   // --- 3. Add Authorization Headers ---
 //   const token = authService.getAccessToken();
-  const processedReq = addAuthHeaders(req);
+  const processedReq = interceptorFn(req);
 
   // --- 4. Show Loader and Handle Request Lifecycle ---
 //   if (showLoader) {
@@ -251,7 +255,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   return next(processedReq).pipe(
     catchError((err: HttpErrorResponse) => {
       // Centralized error handling
-      return handleHttpErrors(err, toastService);
+      return handleHttpErrors(err, authService, toastService);
     }),
     finalize(() => {
       // Always hide loader after request completes
