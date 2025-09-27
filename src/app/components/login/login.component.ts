@@ -4,10 +4,11 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule, InputTextModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   standalone: true
@@ -27,7 +28,7 @@ export class LoginComponent implements OnInit{
   
   ngOnInit(): void {
     this.loginForm.set(this.fb.group({
-      email: new FormControl(null, [Validators.required]),
+      email: new FormControl(null, [Validators.required, Validators.email]),
       password: new FormControl(null, [Validators.required]),
     }))
   }

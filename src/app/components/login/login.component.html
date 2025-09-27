@@ -16,18 +16,33 @@
         <!-- Login Form -->
         <form class="space-y-6" [formGroup]="loginForm()" (ngSubmit)="login()">
             <input type="hidden" name="remember" value="true">
-            <div class="rounded-md shadow-sm -space-y-px">
+            <div class="space-y-4">
                 <div>
-                <label for="email-address" class="sr-only">Email address</label>
-                <input id="email-address" formControlName="email" type="email" autocomplete="email" required 
-                    class="appearance-none rounded-t-md relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
-                    placeholder="Email address">
+                    <label for="email-address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
+                    <input id="email-address" formControlName="email" type="email" autocomplete="email" pInputText
+                        class="mt-1 w-full px-3">
+                    @if (loginForm().get('email')?.invalid && loginForm().get('email')?.touched) {
+                    <div class="text-red-500 text-xs mt-1">
+                        @if (loginForm().get('email')?.errors?.['required']) {
+                        <span>Email is required</span>
+                        }
+                        @if (loginForm().get('email')?.errors?.['email']) {
+                        <span>Please enter a valid email address</span>
+                        }
+                    </div>
+                    }
                 </div>
                 <div>
-                <label for="password" class="sr-only">Password</label>
-                <input id="password" formControlName="password" type="password" autocomplete="current-password" required 
-                    class="appearance-none rounded-b-md relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
-                    placeholder="Password">
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                    <input id="password" formControlName="password" type="password" autocomplete="current-password" pInputText
+                        class="mt-1 w-full px-3">
+                    @if (loginForm().get('password')?.invalid && loginForm().get('password')?.touched) {
+                    <div class="text-red-500 text-xs mt-1">
+                        @if (loginForm().get('password')?.errors?.['required']) {
+                        <span>Password is required</span>
+                        }
+                    </div>
+                    }
                 </div>
             </div>
 

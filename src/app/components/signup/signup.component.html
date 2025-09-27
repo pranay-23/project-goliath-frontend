@@ -30,8 +30,7 @@
                             <label for="firstName"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
                             <input id="firstName" formControlName="firstName" type="text" pInputText
-                                class="mt-1 w-full px-3 "
-                                placeholder="First Name">
+                                class="mt-1 w-full px-3">
                             @if (signupForm().get('firstName')?.invalid && signupForm().get('firstName')?.touched) {
                             <div class="text-red-500 text-xs mt-1">
                                 @if (signupForm().get('firstName')?.errors?.['required']) {
@@ -49,8 +48,7 @@
                             <label for="lastName"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
                             <input id="lastName" formControlName="lastName" type="text" pInputText
-                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="Last Name">
+                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @if (signupForm().get('lastName')?.invalid && signupForm().get('lastName')?.touched) {
                             <div class="text-red-500 text-xs mt-1">
                                 @if (signupForm().get('lastName')?.errors?.['required']) {
@@ -69,8 +67,7 @@
                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email
                             Address</label>
                         <input id="email" formControlName="email" type="email" pInputText
-                            class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            placeholder="Email Address">
+                            class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         @if (signupForm().get('email')?.invalid && signupForm().get('email')?.touched) {
                         <div class="text-red-500 text-xs mt-1">
                             @if (signupForm().get('email')?.errors?.['required']) {
@@ -90,8 +87,7 @@
                             <label for="password"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                             <input id="password" formControlName="password" type="password" pInputText
-                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="Password">
+                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @if (signupForm().get('password')?.invalid && signupForm().get('password')?.touched) {
                             <div class="text-red-500 text-xs mt-1">
                                 @if (signupForm().get('password')?.errors?.['required']) {
@@ -113,8 +109,7 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm
                                 Password</label>
                             <input id="confirmPassword" formControlName="confirmPassword" type="password" pInputText
-                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="Confirm Password">
+                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @if (signupForm().get('confirmPassword')?.invalid &&
                             signupForm().get('confirmPassword')?.touched) {
                             <div class="text-red-500 text-xs mt-1">
@@ -136,8 +131,7 @@
                             <label for="age"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Age</label>
                             <input id="age" formControlName="age" type="number" min="0" max="120" pInputText
-                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="Age">
+                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             @if (signupForm().get('age')?.invalid && signupForm().get('age')?.touched) {
                             <div class="text-red-500 text-xs mt-1">
                                 @if (signupForm().get('age')?.errors?.['min']) {
@@ -152,7 +146,7 @@
                             <label for="gender"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
                             <p-select id="gender" formControlName="gender" [options]="genderOptions" optionLabel="label"
-                                optionValue="value" placeholder="Select Gender"
+                                optionValue="value"
                                 styleClass="mt-1 appearance-none rounded-md relative flex items-center w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 text-gray-900 dark:text-white sm:text-sm">
                             </p-select>
                         </div>
@@ -170,8 +164,7 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Height</label>
                             <div class="relative mt-1 flex items-center">
                                 <input id="height" formControlName="height" type="number" min="0" pInputText
-                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    placeholder="Height">
+                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <div class="absolute right-8 text-sm text-gray-500 dark:text-gray-400">
                                     {{ signupForm().get('unitsPreference')?.get('height')?.value === 'cm' ? 'cm' : 'in'
                                     }}
@@ -190,7 +183,7 @@
                                 <label for="heightUnit"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit</label>
                                 <p-select id="heightUnit" formControlName="height" [options]="heightUnitOptions"
-                                    optionLabel="label" optionValue="value" placeholder="Select Unit"
+                                    optionLabel="label" optionValue="value"
                                     styleClass="mt-1 appearance-none rounded-md relative flex items-center w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 text-gray-900 dark:text-white sm:text-sm">
                                 </p-select>
                             </div>
@@ -204,8 +197,7 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Weight</label>
                             <div class="relative mt-1 flex items-center">
                                 <input id="weight" formControlName="weight" type="number" min="0" pInputText
-                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    placeholder="Weight">
+                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <div class="absolute right-8 text-sm text-gray-500 dark:text-gray-400">
                                     {{ signupForm().get('unitsPreference')?.get('weight')?.value === 'kg' ? 'kg' : 'lbs'
                                     }}
@@ -224,7 +216,7 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit</label>
                             <div [formGroupName]="'unitsPreference'">
                                 <p-select id="weightUnit" formControlName="weight" [options]="weightUnitOptions"
-                                    optionLabel="label" optionValue="value" placeholder="Select Unit"
+                                    optionLabel="label" optionValue="value"
                                     styleClass="mt-1 appearance-none rounded-md relative flex items-center w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 text-gray-900 dark:text-white sm:text-sm">
                                 </p-select>
                             </div>
