@@ -36,6 +36,23 @@ export class AuthService {
             }
         })
     }
+    
+    signup(user: any) {
+        this.apiService.post<any>(true, API_ENDPOINTS.SIGNUP, user).subscribe({
+            next: (response: any) => {
+                if (response.responseHeader.success) {
+                    // Automatically log in after successful signup
+                    this.login({
+                        email: user.email,
+                        password: user.password
+                    });
+                }
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    }
 
     logout(){
         this.apiService.get(true,API_ENDPOINTS.LOGOUT).subscribe({

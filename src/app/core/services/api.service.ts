@@ -43,7 +43,7 @@ export interface ApiServiceResponse<T> {
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
+  // private readonly authService = inject(AuthService);
 
   /**
    * Generates a standardized ApiServiceResponse object from an HTTP response or error.
@@ -341,7 +341,7 @@ export class ApiService {
     //   window.location.href = environment.webUrl;
     // } else {
     // }
-    this.authService.logout();
+    // this.authService.logout();
     // this.router.navigate(['/home']);
   }
 
