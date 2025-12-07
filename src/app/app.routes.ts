@@ -9,6 +9,7 @@ export const routes: Routes = [
   { path: 'landing', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'callback/google', loadComponent: () => import('./components/callback/callback.component').then(m => m.CallbackComponent) },
   { path: 'profile', loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
   { path: 'home', loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent), canActivate: [authGuard] },
   { path: 'calories', loadComponent: () => import('./components/calories/calories.component').then(m => m.CaloriesComponent), canActivate: [authGuard] },
