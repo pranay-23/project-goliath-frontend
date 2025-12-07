@@ -1,0 +1,293 @@
+<div class="p-4 sm:p-6 space-y-6 min-h-[calc(100vh-4rem)] flex flex-col">
+  <div class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Fitness Metrics</h1>
+    <p class="text-gray-600 dark:text-gray-400 text-base sm:text-lg">Track your fitness progress and body composition</p>
+  </div>
+
+  <p-toast></p-toast>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 flex-1 flex flex-col min-h-0">
+    <div class="flex items-center justify-between mb-6 flex-shrink-0">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Fitness Metrics</h2>
+      @if (!editingFitness()) {
+        <button
+          (click)="startEditingFitness()"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer"
+        >
+          Add New Entry
+        </button>
+      }
+    </div>
+
+    <!-- Fitness Metrics List -->
+    @if (loading()) {
+      <div class="flex-1 flex items-center justify-center py-8 sm:py-12">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mx-auto mb-4"></div>
+          <p class="text-gray-500 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    } @else if (fitnessMetrics().length === 0) {
+      <div class="flex-1 flex items-center justify-center py-8 sm:py-12">
+        <div class="text-center">
+          <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg">No entries found</p>
+          <p class="text-gray-400 dark:text-gray-500 text-sm sm:text-base mt-2">Click "Add New Entry" to start tracking your fitness metrics</p>
+        </div>
+      </div>
+    } @else {
+      <div class="flex flex-col flex-1 min-h-0">
+      <div class="space-y-4 mb-6 flex-1 overflow-y-auto">
+        @for (metric of fitnessMetrics(); track metric._id) {
+          <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-4 mb-3">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ metric.date | date:'mediumDate' }}
+                  </h3>
+                  @if (metric._id === latestFitnessMetric()?._id) {
+                    <span class="px-2 py-1 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded">
+                      Latest
+                    </span>
+                  }
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Weight</p>
+                    <p class="text-base font-semibold text-gray-900 dark:text-white">{{ metric.weight }} {{ weightUnit() }}</p>
+                  </div>
+                  @if (metric.bmi) {
+                    <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">BMI</p>
+                      <p class="text-base font-semibold text-gray-900 dark:text-white">{{ metric.bmi | number:'1.1-1' }}</p>
+                    </div>
+                  }
+                  @if (metric.bodyFatPercentage) {
+                    <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Body Fat %</p>
+                      <p class="text-base font-semibold text-gray-900 dark:text-white">{{ metric.bodyFatPercentage | number:'1.1-1' }}%</p>
+                    </div>
+                  }
+                  @if (metric.skeletalMuscleMass) {
+                    <div>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Skeletal Muscle</p>
+                      <p class="text-base font-semibold text-gray-900 dark:text-white">{{ metric.skeletalMuscleMass | number:'1.1-1' }} {{ weightUnit() }}</p>
+                    </div>
+                  }
+                </div>
+                @if (metric.notes) {
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">{{ metric.notes }}</p>
+                }
+              </div>
+              <div class="flex gap-2 ml-4">
+                <button
+                  (click)="editFitnessMetric(metric)"
+                  [disabled]="editingFitness()"
+                  class="px-3 py-1.5 text-sm bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  Edit
+                </button>
+                <button
+                  (click)="deleteFitnessMetric(metric._id)"
+                  [disabled]="deleting() === metric._id || editingFitness()"
+                  class="px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  @if (deleting() === metric._id) {
+                    Deleting...
+                  } @else {
+                    Delete
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      </div>
+    }
+
+    <!-- Fitness Metrics Form (Only shown when editingFitness is true) -->
+    @if (editingFitness() && fitnessForm(); as fitnessForm) {
+      <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          {{ editingMetricId() ? 'Edit Entry' : 'Add New Entry' }}
+        </h3>
+        <form [formGroup]="fitnessForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Weight (Required) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Weight ({{ weightUnit() }}) *
+              </label>
+              <input
+                type="number"
+                formControlName="weight"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              @if (fitnessForm.get('weight')?.invalid && fitnessForm.get('weight')?.touched) {
+                <p class="text-red-500 text-xs mt-1">Weight is required</p>
+              }
+            </div>
+
+            <!-- BMI -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">BMI</label>
+              <input
+                type="number"
+                formControlName="bmi"
+                min="0"
+                max="100"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Body Fat Percentage -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Body Fat Percentage (%)</label>
+              <input
+                type="number"
+                formControlName="bodyFatPercentage"
+                min="0"
+                max="100"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Skeletal Muscle Mass -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Skeletal Muscle Mass ({{ weightUnit() }})
+              </label>
+              <input
+                type="number"
+                formControlName="skeletalMuscleMass"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Body Water Percentage -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Body Water Percentage (%)</label>
+              <input
+                type="number"
+                formControlName="bodyWaterPercentage"
+                min="0"
+                max="100"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Bone Mass -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Bone Mass ({{ weightUnit() }})
+              </label>
+              <input
+                type="number"
+                formControlName="boneMass"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Visceral Fat Level -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Visceral Fat Level</label>
+              <input
+                type="number"
+                formControlName="visceralFatLevel"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Muscle Mass -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Muscle Mass ({{ weightUnit() }})
+              </label>
+              <input
+                type="number"
+                formControlName="muscleMass"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Metabolic Age -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Metabolic Age</label>
+              <input
+                type="number"
+                formControlName="metabolicAge"
+                min="0"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            <!-- Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
+              <input
+                type="date"
+                formControlName="date"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
+            <textarea
+              formControlName="notes"
+              rows="3"
+              maxlength="500"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            ></textarea>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ fitnessForm.get('notes')?.value?.length || 0 }}/500 characters
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4 pt-4">
+            <button
+              type="button"
+              (click)="saveFitnessMetric()"
+              [disabled]="saving() || fitnessForm.invalid"
+              class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              @if (saving()) {
+                {{ editingMetricId() ? 'Updating...' : 'Saving...' }}
+              } @else {
+                {{ editingMetricId() ? 'Update Metrics' : 'Save Metrics' }}
+              }
+            </button>
+            <button
+              type="button"
+              (click)="cancelEditingFitness()"
+              [disabled]="saving()"
+              class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>

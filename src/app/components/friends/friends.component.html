@@ -1,0 +1,401 @@
+<div class="p-4 sm:p-6 space-y-6 min-h-[calc(100vh-4rem)] flex flex-col">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Friends</h1>
+      <p class="text-gray-600 dark:text-gray-400 text-base sm:text-lg">Connect with friends and track progress together</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+      <div class="flex border-b border-gray-200 dark:border-gray-700">
+        <button
+          (click)="switchTab('friends')"
+          [class.bg-indigo-50]="activeTab() === 'friends'"
+          [class.dark:bg-indigo-900/20]="activeTab() === 'friends'"
+          [class.text-indigo-600]="activeTab() === 'friends'"
+          [class.dark:text-indigo-400]="activeTab() === 'friends'"
+          [class.border-b-2]="activeTab() === 'friends'"
+          [class.border-indigo-600]="activeTab() === 'friends'"
+          [class.text-gray-600]="activeTab() !== 'friends'"
+          [class.dark:text-gray-400]="activeTab() !== 'friends'"
+          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+        >
+          Friends
+          @if (friends().length > 0) {
+            <span class="ml-2 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-medium">
+              {{ friends().length }}
+            </span>
+          }
+        </button>
+        <button
+          (click)="switchTab('available')"
+          [class.bg-indigo-50]="activeTab() === 'available'"
+          [class.dark:bg-indigo-900/20]="activeTab() === 'available'"
+          [class.text-indigo-600]="activeTab() === 'available'"
+          [class.dark:text-indigo-400]="activeTab() === 'available'"
+          [class.border-b-2]="activeTab() === 'available'"
+          [class.border-indigo-600]="activeTab() === 'available'"
+          [class.text-gray-600]="activeTab() !== 'available'"
+          [class.dark:text-gray-400]="activeTab() !== 'available'"
+          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+        >
+          Discover
+        </button>
+        <button
+          (click)="switchTab('requests')"
+          [class.bg-indigo-50]="activeTab() === 'requests'"
+          [class.dark:bg-indigo-900/20]="activeTab() === 'requests'"
+          [class.text-indigo-600]="activeTab() === 'requests'"
+          [class.dark:text-indigo-400]="activeTab() === 'requests'"
+          [class.border-b-2]="activeTab() === 'requests'"
+          [class.border-indigo-600]="activeTab() === 'requests'"
+          [class.text-gray-600]="activeTab() !== 'requests'"
+          [class.dark:text-gray-400]="activeTab() !== 'requests'"
+          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+        >
+          Requests
+          @if (pendingRequests().length > 0) {
+            <span class="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-medium">
+              {{ pendingRequests().length }}
+            </span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Friends Tab -->
+    @if (activeTab() === 'friends') {
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 flex-1 flex flex-col min-h-0">
+        @if (isLoadingFriends()) {
+          <div class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mx-auto"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading friends...</p>
+          </div>
+        } @else if (friends().length > 0) {
+          <div class="flex flex-col flex-1 min-h-0">
+          <!-- Search Bar -->
+          <div class="mb-6 flex-shrink-0">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                [value]="friendsSearchQuery()"
+                (input)="updateFriendsSearchQuery($any($event.target).value)"
+                placeholder="Search friends by name..."
+                class="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+              />
+              @if (friendsSearchQuery().length > 0) {
+                <button
+                  (click)="updateFriendsSearchQuery('')"
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              }
+            </div>
+            @if (friendsSearchQuery().length > 0) {
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Showing {{ filteredFriends().length }} of {{ friends().length }} friends
+              </p>
+            }
+          </div>
+
+          <!-- Friends List -->
+          @if (filteredFriends().length > 0) {
+            <div class="space-y-2 flex-1 overflow-y-auto pr-2 min-h-0">
+              @for (friend of filteredFriends(); track friend._id) {
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all cursor-pointer group"
+                   (click)="viewFriendDailyLog(friend)">
+                  <div class="flex items-center gap-4">
+                    <div [class]="'w-12 h-12 rounded-full ' + getAvatarColorGradient(friend) + ' flex items-center justify-center text-white font-bold shadow-md group-hover:scale-105 transition-transform flex-shrink-0'">
+                      @if (friend.profilePictureUrl) {
+                        <img [src]="friend.profilePictureUrl" [alt]="getUserFullName(friend)" class="w-full h-full rounded-full object-cover">
+                      } @else {
+                        {{ getUserInitials(friend) }}
+                      }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                        {{ getUserFullName(friend) }}
+                      </h3>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tap to view daily log</p>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-12">
+              <svg class="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <p class="text-gray-500 dark:text-gray-400 text-lg">No friends found matching "{{ friendsSearchQuery() }}"</p>
+              <button
+                (click)="updateFriendsSearchQuery('')"
+                class="mt-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+              >
+                Clear search
+              </button>
+            </div>
+          }
+          </div>
+        } @else {
+          <div class="flex-1 flex items-center justify-center py-8 sm:py-12">
+            <div class="text-center">
+              <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg">No friends yet. Start connecting with others!</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Available Users Tab -->
+    @if (activeTab() === 'available') {
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 flex-1 flex flex-col min-h-0">
+        @if (isLoadingAvailableUsers()) {
+          <div class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mx-auto"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading users...</p>
+          </div>
+        } @else if (availableUsers().length > 0) {
+          <div class="space-y-2 flex-1 overflow-y-auto pr-2 min-h-0">
+            @for (user of availableUsers(); track user._id) {
+              <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div [class]="'w-12 h-12 rounded-full ' + getAvatarColorGradient(user) + ' flex items-center justify-center text-white font-bold shadow-md group-hover:scale-105 transition-transform flex-shrink-0'">
+                      @if (user.profilePictureUrl) {
+                        <img [src]="user.profilePictureUrl" [alt]="getUserFullName(user)" class="w-full h-full rounded-full object-cover">
+                      } @else {
+                        {{ getUserInitials(user) }}
+                      }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                        {{ getUserFullName(user) }}
+                      </h3>
+                    </div>
+                  </div>
+                  <button
+                    (click)="sendConnectionRequest(user._id)"
+                    [disabled]="sendingRequestToUserId() === user._id"
+                    class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                  >
+                    @if (sendingRequestToUserId() === user._id) {
+                      <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      <span>Sending...</span>
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      <span>Send Request</span>
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex-1 flex items-center justify-center py-8 sm:py-12">
+            <div class="text-center">
+              <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg">No available users found</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Pending Requests Tab -->
+    @if (activeTab() === 'requests') {
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 flex-1 flex flex-col min-h-0">
+        @if (isLoadingRequests()) {
+          <div class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mx-auto"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading requests...</p>
+          </div>
+        } @else if (pendingRequests().length > 0) {
+          <div class="space-y-4">
+            @for (request of pendingRequests(); track request._id) {
+              <div class="p-5 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4 flex-1">
+                    <div [class]="'w-14 h-14 rounded-full ' + (request.fromUserId && typeof request.fromUserId === 'object' ? getAvatarColorGradient(request.fromUserId) : 'bg-gradient-to-br from-yellow-500 to-orange-500') + ' flex items-center justify-center text-white font-bold text-lg shadow-lg'">
+                      @if (request.fromUserId && typeof request.fromUserId === 'object' && request.fromUserId.profilePictureUrl) {
+                        <img [src]="request.fromUserId.profilePictureUrl" [alt]="getUserFullName(request.fromUserId)" class="w-full h-full rounded-full object-cover">
+                      } @else if (request.fromUserId && typeof request.fromUserId === 'object') {
+                        {{ getUserInitials(request.fromUserId) }}
+                      }
+                    </div>
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-gray-900 dark:text-white text-lg">
+                        @if (request.fromUserId && typeof request.fromUserId === 'object') {
+                          {{ getUserFullName(request.fromUserId) }}
+                        } @else {
+                          Unknown User
+                        }
+                      </h3>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Wants to connect with you</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-3">
+                    <button
+                      (click)="acceptRequest(request._id)"
+                      [disabled]="processingRequestId() === request._id"
+                      class="px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center gap-2"
+                    >
+                      @if (processingRequestId() === request._id) {
+                        <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      } @else {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Accept
+                      }
+                    </button>
+                    <button
+                      (click)="rejectRequest(request._id)"
+                      [disabled]="processingRequestId() === request._id"
+                      class="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center gap-2"
+                    >
+                      @if (processingRequestId() === request._id) {
+                        <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                      } @else {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Reject
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex-1 flex items-center justify-center py-8 sm:py-12">
+            <div class="text-center">
+              <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <p class="text-gray-500 dark:text-gray-400 text-base sm:text-lg">No pending requests</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Friend Daily Log Modal -->
+    @if (showFriendLogModal() && selectedFriend()) {
+      <div class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" (click)="closeFriendLogModal()">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+          <div class="p-6">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div class="flex items-center gap-4">
+                <div [class]="'w-12 h-12 rounded-full ' + (selectedFriend() ? getAvatarColorGradient(selectedFriend()!) : 'bg-gradient-to-br from-indigo-500 to-blue-500') + ' flex items-center justify-center text-white font-bold text-lg shadow-lg'">
+                  @if (selectedFriend()?.profilePictureUrl) {
+                    <img [src]="selectedFriend()!.profilePictureUrl" [alt]="getUserFullName(selectedFriend()!)" class="w-full h-full rounded-full object-cover">
+                  } @else {
+                    {{ getUserInitials(selectedFriend()!) }}
+                  }
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ getUserFullName(selectedFriend()!) }}</h2>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Daily Nutrition Log</p>
+                </div>
+              </div>
+              <button
+                (click)="closeFriendLogModal()"
+                class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Date Selector -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Date</label>
+              <input
+                type="date"
+                [value]="friendLogDate()"
+                (change)="friendLogDate.set($any($event.target).value); onFriendLogDateChange()"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
+              />
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Viewing: <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ formatDate(friendLogDate()) }}</span>
+              </p>
+            </div>
+
+            <!-- Daily Summary -->
+            @if (isLoadingFriendLog()) {
+              <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-500 mx-auto"></div>
+                <p class="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+              </div>
+            } @else if (friendDailyLog(); as log) {
+              <div class="space-y-6">
+                <!-- Calories In and Out -->
+                <div class="p-5 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Calories</h3>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Calories In</p>
+                      <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ log.dailyLog.totalCaloriesIn | number:'1.0-0' }}</p>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Calories Out</p>
+                      <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ log.dailyLog.totalCaloriesOut | number:'1.0-0' }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total Macros -->
+                <div class="p-5 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Total Macros</h3>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Protein</p>
+                      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ log.dailyLog.totalProteinIn | number:'1.0-1' }}g</p>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Carbs</p>
+                      <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ log.dailyLog.totalCarbsIn | number:'1.0-1' }}g</p>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Fats</p>
+                      <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ log.dailyLog.totalFatsIn | number:'1.0-1' }}g</p>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-700/50 rounded-lg">
+                      <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Fiber</p>
+                      <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ log.dailyLog.totalFibreIn | number:'1.0-1' }}g</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="text-center py-12">
+                <p class="text-gray-500 dark:text-gray-400">No data available for this date</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+</div>

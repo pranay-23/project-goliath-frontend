@@ -5,7 +5,6 @@ import { API_ENDPOINTS } from '../constants/api-endpoints.constants';
 import { catchError, filter, map, Observable, take, tap, throwError } from 'rxjs';
 import { UserStore } from '../stores/user.store';
 import { Router, UrlTree } from '@angular/router';
-import {CookieService} from 'ngx-cookie-service';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 
@@ -16,7 +15,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 export class AuthService {
     private readonly apiService = inject(ApiService);
     private readonly router = inject(Router);
-    private readonly cookieService = inject(CookieService);
     public userStore = inject(UserStore);
 
 
@@ -27,7 +25,7 @@ export class AuthService {
                 if(response.responseHeader.success){
                     localStorage.setItem('isLoggedIn', 'true');
                     this.userStore.getRequest();
-                    this.router.navigate(['/dashboard']);
+                    this.router.navigate(['/home']);
                 }
             },
             error: (error) => {
@@ -60,7 +58,7 @@ export class AuthService {
                 if(response.responseHeader.success){
                     localStorage.removeItem('isLoggedIn');
                     this.userStore.clearState();
-                    this.router.navigate(['/home']);
+                    this.router.navigate(['/landing']);
                 }
             }
         })
@@ -84,7 +82,7 @@ export class AuthService {
                 if (isAuthenticated) {
                 return true;
                 } else {
-                return this.router.createUrlTree(['/home']);
+                return this.router.createUrlTree(['/landing']);
                 }
             })
         );

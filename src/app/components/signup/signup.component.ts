@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
 import { UserStore } from '../../core/stores/user.store';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -16,7 +16,7 @@ interface City {
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, SelectModule, InputTextModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, RouterModule, SelectModule, InputTextModule],
   templateUrl: './signup.component.html',
   changeDetection:ChangeDetectionStrategy.OnPush
 })
@@ -58,7 +58,7 @@ export class SignupComponent implements OnInit {
 
   constructor() {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/home']);
     }
   }
 
@@ -76,7 +76,6 @@ export class SignupComponent implements OnInit {
       age: new FormControl(null, [Validators.min(18)]),
       gender: new FormControl(''),
       height: new FormControl(null, [Validators.min(0)]),
-      weight: new FormControl(null, [Validators.min(0)]),
       unitsPreference: this.fb.group({
         weight: new FormControl(this.defaultWeightUnit, [Validators.required]),
         height: new FormControl(this.defaultHeightUnit, [Validators.required])
@@ -101,20 +100,29 @@ export class SignupComponent implements OnInit {
     if (this.signupForm().valid) {
       const formValue = this.signupForm().value;
       
-      // Create user object from form values
-      const user = {
+      // Create user object from form values - only include fields that have values
+      const user: any = {
         firstName: formValue.firstName,
         lastName: formValue.lastName,
         email: formValue.email,
-        password: formValue.password,
-        age: formValue.age,
-        gender: formValue.gender,
-        height: formValue.height,
-        weight: formValue.weight,
-        unitsPreference: formValue.unitsPreference
+        password: formValue.password
       };
       
-      // Call signup method from auth service (to be implemented)
+      // Add optional fields only if they have values
+      if (formValue.age !== null && formValue.age !== undefined && formValue.age !== '') {
+        user.age = formValue.age;
+      }
+      if (formValue.gender && formValue.gender !== '') {
+        user.gender = formValue.gender;
+      }
+      if (formValue.height !== null && formValue.height !== undefined && formValue.height !== '') {
+        user.height = formValue.height;
+      }
+      if (formValue.unitsPreference) {
+        user.unitsPreference = formValue.unitsPreference;
+      }
+      
+      // Call signup method from auth service
       this.authService.signup(user);
     }
   }

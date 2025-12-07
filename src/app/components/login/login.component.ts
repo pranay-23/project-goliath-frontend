@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit{
 
   constructor(){
     if(this.authService.isAuthenticated()){
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/home']);
     }
   }
 

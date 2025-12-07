@@ -16,7 +16,7 @@ export class LandingComponent {
 
   constructor() {
     if(this.authService.isAuthenticated()){
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/home']);
     }
   }
 

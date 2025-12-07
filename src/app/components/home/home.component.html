@@ -1,0 +1,152 @@
+<div class="p-4 sm:p-6 space-y-6">
+  <!-- Header Section -->
+  <div class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Fitness Dashboard</h1>
+    <p class="text-gray-600 dark:text-gray-400 text-base sm:text-lg">Track your progress and stay on top of your fitness goals</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Today's Calories In</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ todayCaloriesIn() | number:'1.0-0' }}</p>
+        </div>
+        <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
+          <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Today's Calories Out</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ todayCaloriesOut() | number:'1.0-0' }}</p>
+        </div>
+        <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+          <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Net Calories</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            <span [class.text-green-600]="todayNetCalories() >= 0" [class.text-red-600]="todayNetCalories() < 0">
+              {{ todayNetCalories() >= 0 ? '+' : '' }}{{ todayNetCalories() | number:'1.0-0' }}
+            </span>
+          </p>
+        </div>
+        <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+          <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Current Weight</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ currentWeight() }}</p>
+        </div>
+        <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+          <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Calories In vs Out Line Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Calories In vs Calories Out</h3>
+      <div class="h-64">
+        <canvas id="caloriesChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Macronutrients Doughnut Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Macronutrients Breakdown</h3>
+      <div class="h-64">
+        <canvas id="macronutrientsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Weekly Trend Bar Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Calories Trend</h3>
+      <div class="h-64">
+        <canvas id="weeklyTrendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Daily Macros Bar Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Daily Macronutrients</h3>
+      <div class="h-64">
+        <canvas id="dailyMacrosChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fitness Metrics Charts Section -->
+  @if (fitnessMetrics().length > 0) {
+    <div class="mt-6">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Fitness Metrics Trends</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Weight Trend Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weight Trend</h3>
+          <div class="h-64">
+            <canvas id="weightChart"></canvas>
+          </div>
+        </div>
+
+        <!-- BMI Trend Chart -->
+        @if (bmiDataFiltered().length > 0) {
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">BMI Trend</h3>
+            <div class="h-64">
+              <canvas id="bmiChart"></canvas>
+            </div>
+          </div>
+        }
+
+        <!-- Body Fat Percentage Chart -->
+        @if (bodyFatDataFiltered().length > 0) {
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Body Fat Percentage</h3>
+            <div class="h-64">
+              <canvas id="bodyFatChart"></canvas>
+            </div>
+          </div>
+        }
+
+        <!-- Skeletal Muscle Mass Chart -->
+        @if (skeletalMuscleDataFiltered().length > 0) {
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Skeletal Muscle Mass Trend</h3>
+            <div class="h-64">
+              <canvas id="skeletalMuscleChart"></canvas>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

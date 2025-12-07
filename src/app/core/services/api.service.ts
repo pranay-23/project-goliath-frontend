@@ -206,6 +206,38 @@ export class ApiService {
   }
 
   /**
+   * Performs an HTTP PATCH request.
+   * @template T The expected response body type.
+   * @param suffix A boolean indicating whether to append the environment-specific suffix to the URL.
+   * @param endpoint The API endpoint (e.g., '/users/1').
+   * @param body The request body.
+   * @param options Optional HTTP options (headers, params, etc.).
+   * @param showLoader A boolean to control the visibility of a global loader.
+   * @returns An Observable of ApiServiceResponse<T>.
+   */
+  patch<T>(suffix: boolean, endpoint: string, body: any, options: HttpOptions = {}, showLoader?: boolean): Observable<ApiServiceResponse<T>> {
+    const params = {...options.params};
+    if (options.params) {
+      endpoint = this.setParamsInUrl(endpoint, options.params);
+    }
+    const httpOptions = {
+      ...options,
+    //   context: this.createHttpContext(showLoader) ?? options.context,
+      observe: 'response' as const
+    };
+    return this.http.patch<T>(this.getFullUrl(suffix, endpoint), body, httpOptions).pipe(
+      catchError((error: HttpErrorResponse) => {
+        const customError = this.generateResponse<T>(error, {...options,params:params}, body);
+        const err = Object.assign(customError, error);
+        return throwError(() => err);
+      }),
+      map((response: HttpResponse<T>) => {
+        return this.generateResponse<T>(response, {...options,params:params}, body)
+      }),
+    );
+  }
+
+  /**
    * Performs an HTTP PUT request.
    * @template T The expected response body type.
    * @param suffix A boolean indicating whether to append the environment-specific suffix to the URL.

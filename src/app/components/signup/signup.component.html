@@ -190,38 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- Weight with Units -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="relative">
-                            <label for="weight"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Weight</label>
-                            <div class="relative mt-1 flex items-center">
-                                <input id="weight" formControlName="weight" type="number" min="0" pInputText
-                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <div class="absolute right-8 text-sm text-gray-500 dark:text-gray-400">
-                                    {{ signupForm().get('unitsPreference')?.get('weight')?.value === 'kg' ? 'kg' : 'lbs'
-                                    }}
-                                </div>
-                            </div>
-                            @if (signupForm().get('weight')?.invalid && signupForm().get('weight')?.touched) {
-                            <div class="text-red-500 text-xs mt-1">
-                                @if (signupForm().get('weight')?.errors?.['min']) {
-                                <span>Weight must be a positive number</span>
-                                }
-                            </div>
-                            }
-                        </div>
-                        <div>
-                            <label for="weightUnit"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit</label>
-                            <div [formGroupName]="'unitsPreference'">
-                                <p-select id="weightUnit" formControlName="weight" [options]="weightUnitOptions"
-                                    optionLabel="label" optionValue="value"
-                                    styleClass="mt-1 appearance-none rounded-md relative flex items-center w-full border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-black/50 text-gray-900 dark:text-white sm:text-sm">
-                                </p-select>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Sign Up Button -->

@@ -2,7 +2,9 @@
     <!-- The background is now dark:bg-black as requested -->
     <div class="bg-gray-50 text-gray-800 dark:bg-black dark:text-gray-200 min-h-screen font-sans transition-colors duration-300">
         <app-topbar [isDarkMode]="isDarkMode()" (themeToggled)="toggleTheme()"></app-topbar>
-        <router-outlet></router-outlet>
+        <div class="pt-16 sm:pt-16">
+            <router-outlet></router-outlet>
+        </div>
     </div>
 </div>
 
