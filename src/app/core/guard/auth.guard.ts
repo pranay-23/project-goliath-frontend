@@ -4,5 +4,11 @@ import { AuthService } from "../services/auth.service";
 
 export const authGuard: CanActivateChildFn = () => {
     const authService = inject(AuthService);
-    return authService.isAuthenticated();
+    const router = inject(Router);
+    
+    if (authService.isAuthenticated()) {
+        return true;
+    } else {
+        return router.createUrlTree(['/landing']);
+    }
 }
