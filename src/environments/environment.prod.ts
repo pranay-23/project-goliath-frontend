@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-api-domain.com',
+  apiUrl: 'https://project-goliath-backend.vercel.app',
   suffix: '/api',
 };
