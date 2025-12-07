@@ -27,7 +27,7 @@ export class App {
       }
     });
     effect(() => {
-      if(!untracked(this.userStore.initialised)){
+      if(!untracked(this.userStore.initialised) && localStorage.getItem('isLoggedIn') === 'true'){
         this.userStore.getRequest();
       }
     })
