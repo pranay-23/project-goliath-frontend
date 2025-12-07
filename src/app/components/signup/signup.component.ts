@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
+import { environment } from '../../../environments/environment';
 
 
 interface City {
@@ -125,5 +126,10 @@ export class SignupComponent implements OnInit {
       // Call signup method from auth service
       this.authService.signup(user);
     }
+  }
+
+  signUpWithGoogle() {
+    const googleAuthUrl = `${environment.apiUrl}${environment.suffix}/auth/google`;
+    window.location.href = googleAuthUrl;
   }
 }

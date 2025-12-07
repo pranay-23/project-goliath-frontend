@@ -5,6 +5,7 @@ import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, 
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -38,5 +39,11 @@ export class LoginComponent implements OnInit{
     const password = this.loginForm().get('password').value;
 
     this.authService.login({email,password});
+  }
+
+  signInWithGoogle() {
+    const googleAuthUrl = `${environment.apiUrl}${environment.suffix}/auth/google`;
+    console.log(googleAuthUrl);
+    window.location.href = googleAuthUrl;
   }
 }
