@@ -16,20 +16,45 @@ export class AuthService {
     private readonly apiService = inject(ApiService);
     private readonly router = inject(Router);
     public userStore = inject(UserStore);
+    
+    private readonly TOKEN_KEY = 'auth_token';
 
+    /**
+     * Get the stored authentication token
+     */
+    getAccessToken(): string | null {
+        return localStorage.getItem(this.TOKEN_KEY);
+    }
+
+    /**
+     * Store the authentication token
+     */
+    setAccessToken(token: string): void {
+        localStorage.setItem(this.TOKEN_KEY, token);
+    }
+
+    /**
+     * Remove the authentication token
+     */
+    removeAccessToken(): void {
+        localStorage.removeItem(this.TOKEN_KEY);
+    }
 
     login(credentials:{email:string,password:string}){
         const body = credentials;
         this.apiService.post<any>(true,API_ENDPOINTS.LOGIN,body).subscribe({
             next: (response:any) =>{
                 if(response.responseHeader.success){
-                    localStorage.setItem('isLoggedIn', 'true');
+                    // Store token from response body
+                    if(response.data?.token){
+                        this.setAccessToken(response.data.token);
+                    }
                     this.userStore.getRequest();
                     this.router.navigate(['/home']);
                 }
             },
             error: (error) => {
-                localStorage.removeItem('isLoggedIn');
+                this.removeAccessToken();
                 console.log(error);
             }
         })
@@ -56,10 +81,16 @@ export class AuthService {
         this.apiService.get(true,API_ENDPOINTS.LOGOUT).subscribe({
             next: (response:any) =>{
                 if(response.responseHeader.success){
-                    localStorage.removeItem('isLoggedIn');
+                    this.removeAccessToken();
                     this.userStore.clearState();
                     this.router.navigate(['/landing']);
                 }
+            },
+            error: () => {
+                // Even if logout fails on backend, clear local storage
+                this.removeAccessToken();
+                this.userStore.clearState();
+                this.router.navigate(['/landing']);
             }
         })
     }
@@ -89,11 +120,8 @@ export class AuthService {
     }
 
     isAuthenticated():boolean{
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        if(isLoggedIn === 'true'){
-            return true;
-        }else{
-            return false;
-        }
+        const token = this.getAccessToken();
+        // Check if token exists to determine authentication status
+        return token !== null;
     }
 }

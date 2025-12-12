@@ -116,34 +116,25 @@ function handleObject(data: object, sanitizer: FormSanitizationService): { sanit
  * @returns The cloned HttpRequest with added headers.
  */
 function interceptorFn(req: HttpRequest<any>, token?: string | null): HttpRequest<any> {
-//   if (!token) {
-//     // Handles requests for non-authenticated users (e.g., login).
-//     return req.clone({
-//       headers: req.headers
-//         .set('Content-Type', 'application/x-www-form-urlencoded')
-//     });
-//   }
-
-  // For FormData, only add the Authorization header. The browser MUST set the
-  // Content-Type header to 'multipart/form-data' with the correct boundary.
-//   if (req.body instanceof FormData) {
-//     return req.clone({
-//       headers: req.headers.set('Authorization', Bearer ${token})
-//     });
-//   }
-  // if (!req.url.includes('/refresh')) {
-  //   // Handles standard JSON requests for an authenticated user.
-  //   return req.clone({
-  //     headers: req.headers
-  //       .set('Content-Type', 'application/json')
-  //   });
-  // }
-  const reqWithCreds = req.clone({
+  let headers = req.headers;
+  
+  // Add Authorization header if token is available
+  if (token) {
+    headers = headers.set('Authorization', `Bearer ${token}`);
+  }
+  
+  // For FormData requests, let the browser set Content-Type automatically
+  // For other requests, set Content-Type to application/json if not already set
+  if (!(req.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers = headers.set('Content-Type', 'application/json');
+  }
+  
+  // Clone request with updated headers
+  // Keep withCredentials for cookie fallback support
+  return req.clone({
+    headers: headers,
     withCredentials: true
   });
-
-  // Returns the original request for all other cases (e.g., refresh token requests).
-  return reqWithCreds;
 }
 
 /**
@@ -193,7 +184,7 @@ function handleHttpErrors(err: HttpErrorResponse,authService:AuthService, toastS
   if (err.status === 401) {
     const message = err.error?.message ?? 'Unauthorized Access. Please log in again.';
     toastService.showToast('error', 'Error', message, 'bottom-center');
-    // authService.logout();
+    authService.logout();
     return throwError(() => err);
   }
 
@@ -244,8 +235,8 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   }
 
   // --- 3. Add Authorization Headers ---
-//   const token = authService.getAccessToken();
-  const processedReq = interceptorFn(req);
+  const token = authService.getAccessToken();
+  const processedReq = interceptorFn(req, token);
 
   // --- 4. Show Loader and Handle Request Lifecycle ---
 //   if (showLoader) {

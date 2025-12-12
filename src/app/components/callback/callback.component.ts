@@ -1,7 +1,8 @@
 import { Component, effect, inject, untracked } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserStore } from '../../core/stores/user.store';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-callback',
@@ -20,8 +21,19 @@ import { UserStore } from '../../core/stores/user.store';
 export class CallbackComponent {
   private userStore = inject(UserStore);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
 
   constructor(){
+    // Extract token from URL query parameter (for Google OAuth)
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      if(token){
+        // Store the token from OAuth callback
+        this.authService.setAccessToken(token);
+      }
+    });
+
     if(!untracked(this.userStore.initialised)){
         this.userStore.getRequest();
     }
@@ -29,7 +41,6 @@ export class CallbackComponent {
         if(this.userStore.initialised()){
             const data = this.userStore.data();
             if(data){
-                localStorage.setItem('isLoggedIn', 'true');
                 this.router.navigate(['/home']);
             }else{
                 this.router.navigate(['/login']);
@@ -38,4 +49,3 @@ export class CallbackComponent {
     })
   }
 }
-

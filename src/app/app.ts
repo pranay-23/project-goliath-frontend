@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { TopbarComponent } from './shared/components/topbar/topbar.component';
 import { UserStore } from './core/stores/user.store';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import { UserStore } from './core/stores/user.store';
 })
 export class App {
   public userStore = inject(UserStore);
+  private authService = inject(AuthService);
   isDarkMode = signal<boolean>(false);
 
   constructor() {
@@ -27,7 +29,7 @@ export class App {
       }
     });
     effect(() => {
-      if(!untracked(this.userStore.initialised) && localStorage.getItem('isLoggedIn') === 'true'){
+      if(!untracked(this.userStore.initialised) && this.authService.isAuthenticated()){
         this.userStore.getRequest();
       }
     })
