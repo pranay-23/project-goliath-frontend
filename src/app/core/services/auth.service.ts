@@ -47,7 +47,9 @@ export class AuthService {
                 if(response.responseHeader.success){
                     // Store token from response body
                     if(response.data?.token){
+                        console.log(response.data.token);
                         this.setAccessToken(response.data.token);
+                        console.log(this.getAccessToken());
                     }
                     this.userStore.getRequest();
                     this.router.navigate(['/home']);

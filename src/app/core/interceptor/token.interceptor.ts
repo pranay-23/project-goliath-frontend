@@ -120,6 +120,7 @@ function interceptorFn(req: HttpRequest<any>, token?: string | null): HttpReques
   
   // Add Authorization header if token is available
   if (token) {
+    console.log(token);
     headers = headers.set('Authorization', `Bearer ${token}`);
   }
   
@@ -184,7 +185,7 @@ function handleHttpErrors(err: HttpErrorResponse,authService:AuthService, toastS
   if (err.status === 401) {
     const message = err.error?.message ?? 'Unauthorized Access. Please log in again.';
     toastService.showToast('error', 'Error', message, 'bottom-center');
-    authService.logout();
+    // authService.logout();
     return throwError(() => err);
   }
 
