@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
 import { RangeIntakeStore } from '../../core/stores/rangeIntake.store';
+import { ConfirmationService } from 'primeng/api';
 
 interface Exercise {
   exerciseName: string;
@@ -48,6 +49,7 @@ interface ApiResponse<T> {
 export class WorkoutComponent implements OnInit {
   private apiService = inject(ApiService);
   private rangeIntakeStore = inject(RangeIntakeStore);
+  private confirmationService = inject(ConfirmationService);
   selectedDate = signal<string>(new Date().toISOString().split('T')[0]);
   workoutData = signal<WorkoutResponse | null>(null);
   isLoadingWorkouts = signal<boolean>(false);
@@ -202,22 +204,25 @@ export class WorkoutComponent implements OnInit {
   deleteWorkout(workoutId: string | undefined) {
     if (!workoutId) return;
     
-    if (!confirm('Are you sure you want to delete this workout?')) {
-      return;
-    }
-
-    this.apiService.delete<ApiResponse<any>>(
-      true,
-      `${API_ENDPOINTS.DELETE_WORKOUT}/${workoutId}`
-    ).subscribe({
-      next: (response) => {
-        if (response.responseHeader.success) {
-          this.loadWorkouts();
-          this.rangeIntakeStore.clearState();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting workout:', error);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this workout?',
+      header: 'Confirm Deletion',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.apiService.delete<ApiResponse<any>>(
+          true,
+          `${API_ENDPOINTS.DELETE_WORKOUT}/${workoutId}`
+        ).subscribe({
+          next: (response) => {
+            if (response.responseHeader.success) {
+              this.loadWorkouts();
+              this.rangeIntakeStore.clearState();
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting workout:', error);
+          }
+        });
       }
     });
   }

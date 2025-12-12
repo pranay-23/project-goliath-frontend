@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
 import { RangeIntakeStore } from '../../core/stores/rangeIntake.store';
+import { ConfirmationService } from 'primeng/api';
 
 interface Food {
   _id: string;
@@ -65,6 +66,7 @@ interface ApiResponse<T> {
 export class CaloriesComponent implements OnInit {
   private apiService = inject(ApiService);
   private rangeIntakeStore = inject(RangeIntakeStore);
+  private confirmationService = inject(ConfirmationService);
 
   // Selected date for adding/viewing meals
   selectedDate = signal<string>(new Date().toISOString().split('T')[0]);
@@ -377,27 +379,30 @@ export class CaloriesComponent implements OnInit {
   deleteFoodItem(loggedFoodId: string | undefined) {
     if (!loggedFoodId) return;
 
-    if (!confirm('Are you sure you want to delete this food item?')) {
-      return;
-    }
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this food item?',
+      header: 'Confirm Deletion',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.deletingFoodId.set(loggedFoodId);
 
-    this.deletingFoodId.set(loggedFoodId);
-
-    this.apiService.delete<ApiResponse<any>>(
-      true,
-      `${API_ENDPOINTS.DELETE_CALORIE_INTAKE}/${loggedFoodId}`
-    ).subscribe({
-      next: (response) => {
-        if (response.responseHeader.success) {
-          // Reload the daily log to get updated data
-          this.loadDailyLog();
-          this.rangeIntakeStore.clearState();
-        }
-        this.deletingFoodId.set(null);
-      },
-      error: (error) => {
-        console.error('Error deleting food item:', error);
-        this.deletingFoodId.set(null);
+        this.apiService.delete<ApiResponse<any>>(
+          true,
+          `${API_ENDPOINTS.DELETE_CALORIE_INTAKE}/${loggedFoodId}`
+        ).subscribe({
+          next: (response) => {
+            if (response.responseHeader.success) {
+              // Reload the daily log to get updated data
+              this.loadDailyLog();
+              this.rangeIntakeStore.clearState();
+            }
+            this.deletingFoodId.set(null);
+          },
+          error: (error) => {
+            console.error('Error deleting food item:', error);
+            this.deletingFoodId.set(null);
+          }
+        });
       }
     });
   }

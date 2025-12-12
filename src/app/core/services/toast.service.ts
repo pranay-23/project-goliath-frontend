@@ -20,7 +20,7 @@ export class ToastService {
       | 'bottom-left'
       | 'bottom-right'
       | 'bottom-center'
-      | 'center' = 'top-right'
+      | 'center' = 'bottom-center'
   ) {
     // Check if the same type and detail are already shown    
     if (

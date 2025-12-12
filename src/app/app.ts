@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal, untracked } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TopbarComponent } from './shared/components/topbar/topbar.component';
 import { UserStore } from './core/stores/user.store';
 import { AuthService } from './core/services/auth.service';
@@ -8,7 +9,7 @@ import { ServerStartupService } from './core/services/server-startup.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastModule,TopbarComponent],
+  imports: [RouterOutlet, ToastModule, ConfirmDialogModule, TopbarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection:ChangeDetectionStrategy.OnPush

@@ -82,7 +82,7 @@ export class ProfileComponent implements OnInit {
 
   saveProfile() {
     if (!this.profileForm()?.valid) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields correctly' });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields correctly', key: 'bottom-center' });
       return;
     }
 
@@ -95,7 +95,7 @@ export class ProfileComponent implements OnInit {
           this.user.set(response.response?.data);
           this.userStore.updateState({ data: response.response?.data });
           this.editingProfile.set(false);
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully', key: 'bottom-center' });
           // Reload user data
           this.userStore.getRequest();
         }
@@ -103,7 +103,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating profile:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update profile' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update profile', key: 'bottom-center' });
         this.saving.set(false);
       }
     });

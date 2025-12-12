@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { UserStore } from '../../core/stores/user.store';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { LatestFitnessMetricsStore } from '../../core/stores/latestFitnessMetrics.store';
 import { RecentFitnessMetricsStore } from '../../core/stores/recentFitnessMetrics.store';
@@ -38,6 +38,7 @@ export class FitnessMetricsComponent implements OnInit {
   public latestFitnessMetricsStore = inject(LatestFitnessMetricsStore);
   private apiService = inject(ApiService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   private fb = inject(FormBuilder);
 
   fitnessMetrics = signal<FitnessMetric[]>([]);
@@ -114,7 +115,7 @@ export class FitnessMetricsComponent implements OnInit {
 
   saveFitnessMetric() {
     if (!this.fitnessForm()?.valid) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields correctly' });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields correctly', key: 'bottom-center' });
       return;
     }
 
@@ -133,7 +134,7 @@ export class FitnessMetricsComponent implements OnInit {
         next: (response) => {
           if (response.responseHeader?.success) {
             this.closeFitnessModal();
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics updated successfully' });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics updated successfully', key: 'bottom-center' });
             this.loadFitnessMetrics();
             this.latestFitnessMetricsStore.getRequest(true);
             this.recentFitnessMetricsStore.clearState();
@@ -142,7 +143,7 @@ export class FitnessMetricsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating fitness metrics:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update fitness metrics' });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update fitness metrics', key: 'bottom-center' });
           this.saving.set(false);
         }
       });
@@ -152,7 +153,7 @@ export class FitnessMetricsComponent implements OnInit {
         next: (response) => {
           if (response.responseHeader?.success) {
             this.closeFitnessModal();
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics saved successfully' });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics saved successfully', key: 'bottom-center' });
             this.loadFitnessMetrics();
             this.latestFitnessMetricsStore.getRequest(true);
             this.recentFitnessMetricsStore.clearState();
@@ -161,7 +162,7 @@ export class FitnessMetricsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error saving fitness metrics:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save fitness metrics' });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save fitness metrics', key: 'bottom-center' });
           this.saving.set(false);
         }
       });
@@ -175,25 +176,28 @@ export class FitnessMetricsComponent implements OnInit {
   }
 
   deleteFitnessMetric(metricId: string) {
-    if (!confirm('Are you sure you want to delete this fitness metric entry?')) {
-      return;
-    }
-
-    this.deleting.set(metricId);
-    this.apiService.delete<any>(true, `${API_ENDPOINTS.DELETE_FITNESS_METRICS}/${metricId}`).subscribe({
-      next: (response) => {
-        if (response.responseHeader?.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metric deleted successfully' });
-          this.loadFitnessMetrics();
-          this.latestFitnessMetricsStore.getRequest(true);
-          this.recentFitnessMetricsStore.clearState();
-        }
-        this.deleting.set(null);
-      },
-      error: (error) => {
-        console.error('Error deleting fitness metric:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete fitness metric' });
-        this.deleting.set(null);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this fitness metric entry?',
+      header: 'Confirm Deletion',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.deleting.set(metricId);
+        this.apiService.delete<any>(true, `${API_ENDPOINTS.DELETE_FITNESS_METRICS}/${metricId}`).subscribe({
+          next: (response) => {
+            if (response.responseHeader?.success) {
+              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metric deleted successfully', key: 'bottom-center' });
+              this.loadFitnessMetrics();
+              this.latestFitnessMetricsStore.getRequest(true);
+              this.recentFitnessMetricsStore.clearState();
+            }
+            this.deleting.set(null);
+          },
+          error: (error) => {
+            console.error('Error deleting fitness metric:', error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete fitness metric', key: 'bottom-center' });
+            this.deleting.set(null);
+          }
+        });
       }
     });
   }
