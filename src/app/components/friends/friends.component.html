@@ -18,11 +18,11 @@
           [class.border-indigo-600]="activeTab() === 'friends'"
           [class.text-gray-600]="activeTab() !== 'friends'"
           [class.dark:text-gray-400]="activeTab() !== 'friends'"
-          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+          class="flex-1 px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-semibold transition-all relative flex items-center justify-center gap-2 min-w-0"
         >
           Friends
           @if (friends().length > 0) {
-            <span class="ml-2 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center justify-center min-w-[1.5rem] px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-medium">
               {{ friends().length }}
             </span>
           }
@@ -37,7 +37,7 @@
           [class.border-indigo-600]="activeTab() === 'available'"
           [class.text-gray-600]="activeTab() !== 'available'"
           [class.dark:text-gray-400]="activeTab() !== 'available'"
-          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+          class="flex-1 px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-semibold transition-all relative flex items-center justify-center gap-2 min-w-0"
         >
           Discover
         </button>
@@ -51,11 +51,11 @@
           [class.border-indigo-600]="activeTab() === 'requests'"
           [class.text-gray-600]="activeTab() !== 'requests'"
           [class.dark:text-gray-400]="activeTab() !== 'requests'"
-          class="flex-1 px-6 py-4 font-semibold transition-all relative"
+          class="flex-1 px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-semibold transition-all relative flex items-center justify-center gap-2 min-w-0"
         >
           Requests
           @if (pendingRequests().length > 0) {
-            <span class="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-medium">
+            <span class="inline-flex items-center justify-center min-w-[1.5rem] px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-medium">
               {{ pendingRequests().length }}
             </span>
           }
@@ -191,16 +191,20 @@
                   <button
                     (click)="sendConnectionRequest(user._id)"
                     [disabled]="sendingRequestToUserId() === user._id"
-                    class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                    class="w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                    title="Send Request"
                   >
                     @if (sendingRequestToUserId() === user._id) {
                       <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                      <span>Sending...</span>
+                      <span class="hidden sm:inline">Sending...</span>
                     } @else {
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                      </svg>
-                      <span>Send Request</span>
+                      <span class="text-xl sm:text-base flex items-center justify-center leading-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                      </span>
+                      <span class="hidden sm:inline">Send Request</span>
                     }
                   </button>
                 </div>
@@ -232,7 +236,7 @@
           <div class="space-y-4">
             @for (request of pendingRequests(); track request._id) {
               <div class="p-5 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10 rounded-xl border border-yellow-200 dark:border-yellow-800">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                   <div class="flex items-center gap-4 flex-1">
                     <div [class]="'w-14 h-14 rounded-full ' + (request.fromUserId && typeof request.fromUserId === 'object' ? getAvatarColorGradient(request.fromUserId) : 'bg-gradient-to-br from-yellow-500 to-orange-500') + ' flex items-center justify-center text-white font-bold text-lg shadow-lg'">
                       @if (request.fromUserId && typeof request.fromUserId === 'object' && request.fromUserId.profilePictureUrl) {
@@ -252,11 +256,11 @@
                       <p class="text-sm text-gray-500 dark:text-gray-400">Wants to connect with you</p>
                     </div>
                   </div>
-                  <div class="flex gap-3">
+                  <div class="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
                     <button
                       (click)="acceptRequest(request._id)"
                       [disabled]="processingRequestId() === request._id"
-                      class="px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center gap-2"
+                      class="flex-1 sm:flex-none px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2 min-w-[7rem]"
                     >
                       @if (processingRequestId() === request._id) {
                         <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
@@ -270,7 +274,7 @@
                     <button
                       (click)="rejectRequest(request._id)"
                       [disabled]="processingRequestId() === request._id"
-                      class="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center gap-2"
+                      class="flex-1 sm:flex-none px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2 min-w-[7rem]"
                     >
                       @if (processingRequestId() === request._id) {
                         <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
