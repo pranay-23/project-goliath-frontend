@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
+import { RangeIntakeStore } from '../../core/stores/rangeIntake.store';
 
 interface Exercise {
   exerciseName: string;
@@ -46,7 +47,7 @@ interface ApiResponse<T> {
 })
 export class WorkoutComponent implements OnInit {
   private apiService = inject(ApiService);
-
+  private rangeIntakeStore = inject(RangeIntakeStore);
   selectedDate = signal<string>(new Date().toISOString().split('T')[0]);
   workoutData = signal<WorkoutResponse | null>(null);
   isLoadingWorkouts = signal<boolean>(false);
@@ -187,6 +188,7 @@ export class WorkoutComponent implements OnInit {
         if (response.responseHeader.success) {
           this.closeWorkoutModal();
           this.loadWorkouts();
+          this.rangeIntakeStore.clearState();
         }
         this.isAddingWorkout.set(false);
       },
@@ -211,6 +213,7 @@ export class WorkoutComponent implements OnInit {
       next: (response) => {
         if (response.responseHeader.success) {
           this.loadWorkouts();
+          this.rangeIntakeStore.clearState();
         }
       },
       error: (error) => {

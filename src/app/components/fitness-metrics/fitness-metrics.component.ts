@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserStore } from '../../core/stores/user.store';
@@ -6,6 +6,8 @@ import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { LatestFitnessMetricsStore } from '../../core/stores/latestFitnessMetrics.store';
+import { RecentFitnessMetricsStore } from '../../core/stores/recentFitnessMetrics.store';
 
 interface FitnessMetric {
   _id: string;
@@ -32,16 +34,20 @@ interface FitnessMetric {
 })
 export class FitnessMetricsComponent implements OnInit {
   public userStore = inject(UserStore);
+  public recentFitnessMetricsStore = inject(RecentFitnessMetricsStore);
+  public latestFitnessMetricsStore = inject(LatestFitnessMetricsStore);
   private apiService = inject(ApiService);
   private messageService = inject(MessageService);
   private fb = inject(FormBuilder);
 
   fitnessMetrics = signal<FitnessMetric[]>([]);
-  latestFitnessMetric = signal<FitnessMetric | null>(null);
+  latestFitnessMetric = computed(() => {
+    return this.latestFitnessMetricsStore.data()?.data || null;
+  });
   loading = signal(false);
   saving = signal(false);
   deleting = signal<string | null>(null);
-  editingFitness = signal(false);
+  showFitnessModal = signal(false);
   editingMetricId = signal<string | null>(null);
 
   fitnessForm = signal<FormGroup | null>(null);
@@ -54,13 +60,17 @@ export class FitnessMetricsComponent implements OnInit {
   });
 
   constructor() {
+    effect(()=>{
+      if(this.latestFitnessMetricsStore.initialised() && this.latestFitnessMetric()){
+        this.initializeFitnessForm(this.latestFitnessMetric());
+      }
+    })
     // Initialize form on component creation
     this.initializeFitnessForm();
   }
 
   ngOnInit(): void {
     this.loadFitnessMetrics();
-    this.loadLatestFitnessMetric();
   }
 
   initializeFitnessForm(metric?: FitnessMetric) {
@@ -102,22 +112,6 @@ export class FitnessMetricsComponent implements OnInit {
     });
   }
 
-  loadLatestFitnessMetric() {
-    this.apiService.get<any>(true, API_ENDPOINTS.GET_LATEST_FITNESS_METRICS).subscribe({
-      next: (response) => {
-        if (response.responseHeader?.success) {
-          this.latestFitnessMetric.set(response.response?.data);
-          if (response.response?.data) {
-            this.initializeFitnessForm(response.response.data);
-          }
-        }
-      },
-      error: (error) => {
-        console.error('Error loading latest fitness metric:', error);
-      }
-    });
-  }
-
   saveFitnessMetric() {
     if (!this.fitnessForm()?.valid) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill in all required fields correctly' });
@@ -138,11 +132,11 @@ export class FitnessMetricsComponent implements OnInit {
       this.apiService.patch<any>(true, `${API_ENDPOINTS.UPDATE_FITNESS_METRICS}/${editingId}`, formValue).subscribe({
         next: (response) => {
           if (response.responseHeader?.success) {
-            this.editingFitness.set(false);
-            this.editingMetricId.set(null);
+            this.closeFitnessModal();
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics updated successfully' });
             this.loadFitnessMetrics();
-            this.loadLatestFitnessMetric();
+            this.latestFitnessMetricsStore.getRequest(true);
+            this.recentFitnessMetricsStore.clearState();
           }
           this.saving.set(false);
         },
@@ -157,10 +151,11 @@ export class FitnessMetricsComponent implements OnInit {
       this.apiService.post<any>(true, API_ENDPOINTS.ADD_FITNESS_METRICS, formValue).subscribe({
         next: (response) => {
           if (response.responseHeader?.success) {
-            this.editingFitness.set(false);
+            this.closeFitnessModal();
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metrics saved successfully' });
             this.loadFitnessMetrics();
-            this.loadLatestFitnessMetric();
+            this.latestFitnessMetricsStore.getRequest(true);
+            this.recentFitnessMetricsStore.clearState();
           }
           this.saving.set(false);
         },
@@ -176,7 +171,7 @@ export class FitnessMetricsComponent implements OnInit {
   editFitnessMetric(metric: FitnessMetric) {
     this.editingMetricId.set(metric._id);
     this.initializeFitnessForm(metric);
-    this.editingFitness.set(true);
+    this.showFitnessModal.set(true);
   }
 
   deleteFitnessMetric(metricId: string) {
@@ -190,7 +185,8 @@ export class FitnessMetricsComponent implements OnInit {
         if (response.responseHeader?.success) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Fitness metric deleted successfully' });
           this.loadFitnessMetrics();
-          this.loadLatestFitnessMetric();
+          this.latestFitnessMetricsStore.getRequest(true);
+          this.recentFitnessMetricsStore.clearState();
         }
         this.deleting.set(null);
       },
@@ -205,12 +201,12 @@ export class FitnessMetricsComponent implements OnInit {
   startEditingFitness() {
     this.editingMetricId.set(null);
     this.initializeFitnessForm();
-    this.editingFitness.set(true);
+    this.showFitnessModal.set(true);
   }
 
-  cancelEditingFitness() {
+  closeFitnessModal() {
+    this.showFitnessModal.set(false);
     this.editingMetricId.set(null);
-    this.editingFitness.set(false);
     this.initializeFitnessForm();
   }
 }

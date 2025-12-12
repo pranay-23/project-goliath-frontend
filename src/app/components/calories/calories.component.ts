@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
+import { RangeIntakeStore } from '../../core/stores/rangeIntake.store';
 
 interface Food {
   _id: string;
@@ -63,6 +64,7 @@ interface ApiResponse<T> {
 })
 export class CaloriesComponent implements OnInit {
   private apiService = inject(ApiService);
+  private rangeIntakeStore = inject(RangeIntakeStore);
 
   // Selected date for adding/viewing meals
   selectedDate = signal<string>(new Date().toISOString().split('T')[0]);
@@ -253,6 +255,7 @@ export class CaloriesComponent implements OnInit {
           this.foodQuantity.set(1);
           this.foodGrams.set(null);
           this.useGrams.set(false);
+          this.rangeIntakeStore.clearState();
         }
         this.isAddingFood.set(false);
       },
@@ -388,6 +391,7 @@ export class CaloriesComponent implements OnInit {
         if (response.responseHeader.success) {
           // Reload the daily log to get updated data
           this.loadDailyLog();
+          this.rangeIntakeStore.clearState();
         }
         this.deletingFoodId.set(null);
       },

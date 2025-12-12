@@ -5,6 +5,8 @@ import { RangeIntakeStore } from '../../core/stores/rangeIntake.store';
 import { UserStore } from '../../core/stores/user.store';
 import { ApiService } from '../../core/services/api.service';
 import { API_ENDPOINTS } from '../../core/constants/api-endpoints.constants';
+import { RecentFitnessMetricsStore } from '../../core/stores/recentFitnessMetrics.store';
+import { LatestFitnessMetricsStore } from '../../core/stores/latestFitnessMetrics.store';
 
 interface DailyLog {
   date: string;
@@ -50,22 +52,28 @@ interface FitnessMetric {
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
 
   public rangeIntakeStore = inject(RangeIntakeStore);
+  public recentFitnessMetricsStore = inject(RecentFitnessMetricsStore);
+  public latestFitnessMetricsStore = inject(LatestFitnessMetricsStore);
   public userStore = inject(UserStore);
   private apiService = inject(ApiService);
   
-  chartsInitialized = signal(false);
-  fitnessMetricsInitialized = signal(false);
-  fitnessMetrics = signal<FitnessMetric[]>([]);
-  latestFitnessMetric = signal<FitnessMetric | null>(null);
   private chartInstances: Map<string, any> = new Map();
 
   // Computed data from store
   dailyLogs = computed(() => {
     const data = this.rangeIntakeStore.data() as RangeIntakeData | null;
     return data?.data?.dailyLogs || [];
+  });
+
+  fitnessMetrics = computed(() => {
+    return this.recentFitnessMetricsStore.data()?.data || [];
+  });
+
+  latestFitnessMetric = computed(() => {
+    return this.latestFitnessMetricsStore.data()?.data || null;
   });
 
   // Transform data for charts
@@ -140,7 +148,7 @@ export class HomeComponent implements OnInit {
   fitnessMetricsLabels = computed(() => {
     return this.fitnessMetrics().map(metric => {
       const date = new Date(metric.date);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     });
   });
 
@@ -200,61 +208,33 @@ export class HomeComponent implements OnInit {
     })
 
     effect(()=>{
-      const data = this.rangeIntakeStore.data();
-      if (data && this.chartsInitialized()) {
-        // Update charts when data changes
-        this.updateCharts();
-      }
-    });
-
-    effect(()=>{
-      const metrics = this.fitnessMetrics();
-      if (metrics.length > 0 && this.fitnessMetricsInitialized()) {
-        // Update fitness metrics charts when data changes
-        this.updateFitnessCharts();
+      if(this.rangeIntakeStore.initialised() && this.dailyLogs().length > 0){
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 100);
       }
     })
-  }
 
-  ngOnInit() {
-    // Load fitness metrics
-    this.loadFitnessMetrics();
-    
-    // Initialize charts after view init
-    setTimeout(() => {
-      this.initializeCharts();
-      this.chartsInitialized.set(true);
-    }, 100);
-  }
-
-  loadFitnessMetrics() {
-    // Load recent fitness metrics for charts
-    this.apiService.get<any>(true, API_ENDPOINTS.GET_RECENT_FITNESS_METRICS, { params: { limit: 10 } }).subscribe({
-      next: (response) => {
-        if (response.responseHeader?.success) {
-          this.fitnessMetrics.set(response.response?.data || []);
-          setTimeout(() => {
-            this.initializeFitnessCharts();
-            this.fitnessMetricsInitialized.set(true);
-          }, 100);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading fitness metrics:', error);
+    effect(()=>{
+      if(!untracked(this.recentFitnessMetricsStore.initialised)){
+        this.recentFitnessMetricsStore.getRequest(true,{limit: 10});
       }
-    });
+    })
 
-    // Load latest fitness metric for current weight display
-    this.apiService.get<any>(true, API_ENDPOINTS.GET_LATEST_FITNESS_METRICS).subscribe({
-      next: (response) => {
-        if (response.responseHeader?.success) {
-          this.latestFitnessMetric.set(response.response?.data);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading latest fitness metric:', error);
+    effect(()=>{
+      if(this.recentFitnessMetricsStore.initialised() && this.fitnessMetrics().length > 0){
+        setTimeout(() => {
+          this.initializeFitnessCharts();
+        }, 100);
       }
-    });
+    })
+
+    effect(()=>{
+      if(!untracked(this.latestFitnessMetricsStore.initialised)){
+        this.latestFitnessMetricsStore.getRequest(true);
+      }
+    })
+
   }
 
   initializeCharts() {
@@ -268,14 +248,6 @@ export class HomeComponent implements OnInit {
     this.createWeeklyTrendChart();
     
     // Daily Macros Bar Chart
-    this.createDailyMacrosChart();
-  }
-
-  updateCharts() {
-    // Update existing charts with new data
-    this.createCaloriesChart();
-    this.createMacronutrientsChart();
-    this.createWeeklyTrendChart();
     this.createDailyMacrosChart();
   }
 
@@ -567,15 +539,6 @@ export class HomeComponent implements OnInit {
   }
 
   initializeFitnessCharts() {
-    if (this.fitnessMetrics().length === 0) return;
-    
-    this.createWeightChart();
-    this.createBMIChart();
-    this.createBodyFatChart();
-    this.createSkeletalMuscleChart();
-  }
-
-  updateFitnessCharts() {
     if (this.fitnessMetrics().length === 0) return;
     
     this.createWeightChart();

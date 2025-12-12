@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../constants/api-endpoints.constants";
 
 const baseFeatures = createBaseStore<any>({
   initialEntityState: null,
-  detailsApiEndpoint: API_ENDPOINTS.INTAKE_RANGE,
+  detailsApiEndpoint: API_ENDPOINTS.GET_LATEST_FITNESS_METRICS,
 })
 
-export const RangeIntakeStore = signalStore(
+export const LatestFitnessMetricsStore = signalStore(
     {providedIn:'root'},
     baseFeatures
 )
