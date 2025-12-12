@@ -43,7 +43,6 @@ export class LoginComponent implements OnInit{
 
   signInWithGoogle() {
     const googleAuthUrl = `${environment.apiUrl}${environment.suffix}/auth/google`;
-    console.log(googleAuthUrl);
     window.location.href = googleAuthUrl;
   }
 }

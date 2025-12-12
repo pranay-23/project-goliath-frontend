@@ -120,7 +120,6 @@ function interceptorFn(req: HttpRequest<any>, token?: string | null): HttpReques
   
   // Add Authorization header if token is available
   if (token) {
-    console.log(token);
     headers = headers.set('Authorization', `Bearer ${token}`);
   }
   
