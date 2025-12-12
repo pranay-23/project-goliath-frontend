@@ -4,6 +4,7 @@ import { catchError, finalize, Observable, throwError } from 'rxjs';
 import { FormSanitizationService } from '../services/form-sanitization.service';
 import { ToastService } from '../services/toast.service';
 import { AuthService } from '../services/auth.service';
+import { ServerStartupService } from '../services/server-startup.service';
 
 /**
  * Checks if the request body needs sanitization and recursively sanitizes it.
@@ -174,7 +175,13 @@ function handleHttpErrors(err: HttpErrorResponse,authService:AuthService, toastS
     return handleBlobError(err, toastService);
   }
 
-  const errorUrl = err.url.split('/').pop();
+  const errorUrl = err.url?.split('/').pop();
+
+  // Handle connection errors (status 0) - likely server is down or starting
+  if (err.status === 0) {
+    // Don't show toast for connection errors, the server startup modal will handle it
+    return throwError(() => err);
+  }
 
   if (err.status === 400) {
     toastService.showToast('error', 'Error', (err?.error?.message || 'An unexpected error occurred.'), 'bottom-center');
@@ -219,6 +226,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   const authService = inject(AuthService);
   const toastService = inject(ToastService);
   const formSanitizationService = inject(FormSanitizationService);
+  const serverStartupService = inject(ServerStartupService);
 
 //   const showLoader = req.context.get(SHOW_LOADER);
 
@@ -238,17 +246,25 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   const token = authService.getAccessToken();
   const processedReq = interceptorFn(req, token);
 
-  // --- 4. Show Loader and Handle Request Lifecycle ---
+  // --- 4. Track request for server startup detection ---
+  const requestId = `${req.method}-${req.url}-${Date.now()}`;
+  serverStartupService.onRequestStart(requestId);
+
+  // --- 5. Show Loader and Handle Request Lifecycle ---
 //   if (showLoader) {
 //     // loaderService.show();
 //   }
 
   return next(processedReq).pipe(
     catchError((err: HttpErrorResponse) => {
+      // Track connection errors and timeouts for server startup detection
+      serverStartupService.onRequestEnd(requestId, err);
       // Centralized error handling
       return handleHttpErrors(err, authService, toastService);
     }),
     finalize(() => {
+      // Mark request as completed
+      serverStartupService.onRequestEnd(requestId);
       // Always hide loader after request completes
     //   if (showLoader) {
     //     loaderService.hide();
