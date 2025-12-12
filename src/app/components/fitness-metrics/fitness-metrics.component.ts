@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserStore } from '../../core/stores/user.store';
@@ -61,6 +61,11 @@ export class FitnessMetricsComponent implements OnInit {
   });
 
   constructor() {
+    effect(()=>{
+      if(!untracked(this.latestFitnessMetricsStore.initialised)){
+        this.latestFitnessMetricsStore.getRequest(true);
+      }
+    })
     effect(()=>{
       if(this.latestFitnessMetricsStore.initialised() && this.latestFitnessMetric()){
         this.initializeFitnessForm(this.latestFitnessMetric());
