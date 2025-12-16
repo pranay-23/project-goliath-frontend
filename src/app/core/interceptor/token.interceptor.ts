@@ -191,7 +191,7 @@ function handleHttpErrors(err: HttpErrorResponse,authService:AuthService, toastS
   if (err.status === 401) {
     const message = err.error?.message ?? 'Unauthorized Access. Please log in again.';
     toastService.showToast('error', 'Error', message, 'bottom-center');
-    // authService.logout();
+    authService.logout();
     return throwError(() => err);
   }
 
